@@ -1,6 +1,6 @@
 import Data.List (unfoldr)
-import System.IO (hSetBinaryMode, stdin, stdout)
 import System.Environment (getArgs)
+import System.IO(hSetBinaryMode, hSetBuffering, stdin, stdout, BufferMode (NoBuffering))
 
 data Expr = S | K | I | Iota | A Expr Expr
     | CInt Int | CSucc | CList [Expr]
@@ -64,10 +64,11 @@ main :: IO ()
 main = do
     args <- getArgs
     let b = head args == "-b"
-    hSetBinaryMode stdin b
-    hSetBinaryMode stdout b
     codes <- sequence $ f $ if b then tail args else args
+    hSetBinaryMode stdin b
     input <- getContents
+    hSetBinaryMode stdout b
+    hSetBuffering stdout NoBuffering
     putStr $ unchurch $ A (foldl1 A $ parse <$> reverse codes) $ church input
     where
         f :: [[Char]] -> [IO [Char]]
