@@ -48,15 +48,15 @@ church :: [Char] -> Expr
 church = CList . map CInt . (++ repeat 256) . map fromEnum
 
 unchurch :: Expr -> [Char]
-unchurch = map toEnum . takeWhile (< 256) . map uncInt . uncList
+unchurch = map toEnum . takeWhile (< 256) . map uncint . unclist
     where
-        uncInt :: Expr -> Int
-        uncInt (CInt i) = i
-        uncInt x = uncInt $ eval $ A (A x CSucc) $ CInt 0
+        uncint :: Expr -> Int
+        uncint (CInt i) = i
+        uncint x = uncint $ eval $ A (A x CSucc) $ CInt 0
 
-        uncList :: Expr -> [Expr]
-        uncList (CList l) = l
-        uncList x = eval (A x K) : uncList (eval $ A x $ A S K)
+        unclist :: Expr -> [Expr]
+        unclist (CList l) = l
+        unclist x = eval (A x K) : unclist (eval $ A x $ A S K)
 
 main :: IO ()
 main = do
