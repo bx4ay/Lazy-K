@@ -34,8 +34,8 @@ parse x = foldl1 A $ map fromIota $ parse' $ tail $ scanl f (' ', 0) $ filter (`
             | x `elem` "Kk" = K : parse' t
             | x `elem` "Ss" = S : parse' t
             | x `elem` "01" = (\ (x, y) -> foldl g I x : parse' y) $ span ((`elem` "01") . fst) $ (x, i) : t
-            | x == '`' = (\ (x : y : z) -> A (fromIota x) (fromIota y) : z) $ parse' t
-            | x == '*' = (\ (x : y : z) -> A x y : z) $ parse' t
+            | x == '`' = (\ (x : y : t) -> A (fromIota x) (fromIota y) : t) $ parse' t
+            | x == '*' = (\ (x : y : t) -> A x y : t) $ parse' t
             | x == '(' = (\ (x, y) -> foldl1 A (fromIota <$> parse' x) : parse' (tail y)) $ span ((>= i) . snd) t
             where
                 g :: Expr -> (Char, Int) -> Expr
