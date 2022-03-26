@@ -31,7 +31,7 @@ world!
 (`drop7.lazy`は入力の 8 文字目以降を返すプログラム)
 - 入力は標準入力から読み込まれ、出力は標準出力に書き込まれます。
 - ソースコードに含まれる``()*01IKS`iks``以外の文字は無視されます。
-- `[program-file].lazy`の代わりに`-e "[program-code]"`と記述すれば、`[program-code]`自体が Lazy K のコードとして解釈・実行されます。
+- `[program-file].lazy`の代わりに`-e "[program-code]"`と入力すれば、`[program-code]`自体が Lazy K のコードとして解釈・実行されます。
 - 複数のプログラムを引数として与えた場合、それらは逆向きに関数合成されます。つまり、`lazy code1 code2`は`lazy code1 | lazy code2`のような意味になります。
 
 ### できないこと
