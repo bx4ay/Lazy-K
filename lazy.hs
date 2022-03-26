@@ -1,3 +1,5 @@
+import Data.List (unfoldr)
+import System.IO (hSetBinaryMode, stdin, stdout)
 import System.Environment (getArgs)
 
 data Expr = S | K | I | Iota | A Expr Expr
@@ -48,19 +50,27 @@ church :: [Char] -> Expr
 church = CList . map CInt . (++ repeat 256) . map fromEnum
 
 unchurch :: Expr -> [Char]
-unchurch = map toEnum . takeWhile (< 256) . map uncint . unclist
+unchurch = map toEnum . takeWhile (< 256) . map uncInt . uncList
     where
-        uncint :: Expr -> Int
-        uncint (CInt i) = i
-        uncint x = uncint $ eval $ A (A x CSucc) $ CInt 0
+        uncInt :: Expr -> Int
+        uncInt (CInt i) = i
+        uncInt x = uncInt $ eval $ A (A x CSucc) $ CInt 0
 
-        unclist :: Expr -> [Expr]
-        unclist (CList l) = l
-        unclist x = eval (A x K) : unclist (eval $ A x $ A S K)
+        uncList :: Expr -> [Expr]
+        uncList (CList l) = l
+        uncList x = eval (A x K) : uncList (eval $ A x $ A S K)
 
 main :: IO ()
 main = do
-    [path] <- getArgs
-    code <- readFile path
+    args <- getArgs
+    let b = head args == "-b"
+    hSetBinaryMode stdin b
+    hSetBinaryMode stdout b
+    codes <- sequence $ f $ if b then tail args else args
     input <- getContents
-    putStr $ unchurch $ A (parse code) $ church input
+    putStr $ unchurch $ A (foldl1 A $ parse <$> reverse codes) $ church input
+    where
+        f :: [[Char]] -> [IO [Char]]
+        f ("-e" : x : t) = pure x : f t
+        f (x : t) = readFile x : f t
+        f _ = []
