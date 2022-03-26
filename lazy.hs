@@ -65,7 +65,7 @@ main = do
     input <- getContents
     hSetBinaryMode stdout b
     hSetBuffering stdout NoBuffering
-    putStr $ unchurch $ app (foldl1 app $ parse <$> reverse codes) $ church input
+    putStr $ unchurch $ foldl1 (flip app) $ church input : (parse <$> reverse codes)
     where
         f :: [[Char]] -> [IO [Char]]
         f ("-e" : x : t) = pure x : f t
