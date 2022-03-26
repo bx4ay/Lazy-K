@@ -4,13 +4,7 @@
 `README.md` - これ  
 `lazy.hs` - Lazy K のインタプリタ
 
-## BLC ってなに
-型なしラムダ計算を [de Bruijn インデックス](https://ja.wikipedia.org/wiki/%E3%83%89%E3%83%BB%E3%83%96%E3%83%A9%E3%82%A6%E3%83%B3%E3%83%BB%E3%82%A4%E3%83%B3%E3%83%87%E3%83%83%E3%82%AF%E3%82%B9) 記法で書いてバイナリにエンコードしたもの。
-
-&emsp;\[ *λ* expr \] = `00` \[ expr \]  
-&emsp;\[ expr<sub>1</sub> expr<sub>2</sub> \] = `01` \[ expr<sub>1</sub> \] \[ expr<sub>2</sub> \]  
-&emsp;\[ *i* \] = `1`<sup>*i*</sup> `0`
-
+## Lazy K ってなに
 プログラムは入力を受け取り、出力を返す関数として扱われます。
 
 文字は Church 数、文字列はそれらの Church リストとしてエンコードされます。EOF は 256 です。
