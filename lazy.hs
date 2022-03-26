@@ -1,6 +1,6 @@
 import Data.List (unfoldr)
 import System.Environment (getArgs)
-import System.IO(hSetBinaryMode, hSetBuffering, stdin, stdout, BufferMode (NoBuffering))
+import System.IO (hSetBinaryMode, hSetBuffering, stdin, stdout, BufferMode (NoBuffering))
 
 data Expr = S | K | I | Iota | A Expr Expr
     | CInt Int | CSucc | CList [Expr]
