@@ -19,7 +19,7 @@
 
 ## インタプリタについて
 ```
-$ lazy [-b] ( -e "program-code" | program-file.blc )*
+$ lazy [-b] ( -e "program-code" | program-file.lazy )*
 ```
 - 入力は標準入力から読み込まれ、出力は標準出力に書き込まれます。
 - ソースコードに含まれる``()*01IKS`iks``以外の文字は無視されます。
