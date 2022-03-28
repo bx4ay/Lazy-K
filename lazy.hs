@@ -1,4 +1,3 @@
-import Data.List (unfoldr)
 import System.Environment (getArgs)
 import System.IO (hSetBinaryMode, hSetBuffering, stdin, stdout, BufferMode (NoBuffering))
 
