@@ -2,8 +2,7 @@ import Data.List (unfoldr)
 import System.Environment (getArgs)
 import System.IO (hSetBinaryMode, hSetBuffering, stdin, stdout, BufferMode (NoBuffering))
 
-data Expr = S | K | I | Iota | A Expr Expr
-    | CInt Int | CSucc | CList [Expr]
+data Expr = S | K | I | Iota | CInt Int | CSucc | CList [Expr] | A Expr Expr
 
 app :: Expr -> Expr -> Expr
 app (A (A S x) y) z = app (app x z) $ app y z
