@@ -62,7 +62,7 @@ main = do
     hSetBinaryMode stdout b
     hSetBuffering stdout NoBuffering
     input <- getContents
-    putStr $ unchurch $ foldl1 (flip app) $ church input : (parse <$> codes)
+    putStr $ unchurch $ foldl1 (flip app) $ church input : map parse codes
     where
         f :: [[Char]] -> IO (Bool, [[Char]])
         f ("-b" : x) = sequence (True, sequence $ g x)
