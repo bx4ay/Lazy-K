@@ -52,7 +52,7 @@ unchurch = map toEnum . takeWhile (< 256) . map uncInt . uncList
 
         uncList :: Expr -> [Expr]
         uncList (CList l) = l
-        uncList x = app x K : uncList (app x $ app S K)
+        uncList x = app x K : uncList (app x $ A K I)
 
 main :: IO ()
 main = do
