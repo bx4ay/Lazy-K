@@ -5,7 +5,7 @@ data Expr = S | K | I | Iota | CInt Int | CSucc | CList [Expr] | A Expr Expr
 
 app :: Expr -> Expr -> Expr
 app (A (A S x) y) z = app (app x z) $ app y z
-app (A K x) y = x
+app (A K x) _ = x
 app I x = x
 app Iota x = app (app x S) K
 app (A (CInt i) x) y = iterate (app x) y !! i
@@ -15,7 +15,7 @@ app x y = A x y
 
 parse :: [Char] -> Expr
 parse [] = I
-parse x = foldl1 app $ map fromIota $ parse' $ tail $ scanl f (' ', 0) $ filter (`elem` "()*01IKS`iks") x
+parse x = foldl1 app $ fromIota <$> parse' (tail $ scanl f (' ', 0) $ filter (`elem` "()*01IKS`iks") $ concat $ takeWhile (/= '#') <$> lines x)
     where
         fromIota :: Expr -> Expr
         fromIota Iota = I
@@ -34,7 +34,7 @@ parse x = foldl1 app $ map fromIota $ parse' $ tail $ scanl f (' ', 0) $ filter 
             where
                 g :: Expr -> (Char, Int) -> Expr
                 g x ('0', _) = app (app x S) K
-                g x _ = app S $ app K x
+                g x _ = A S $ A K x
         parse' _ = []
 
         f :: (Char, Int) -> Char -> (Char, Int)
