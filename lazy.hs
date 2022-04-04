@@ -1,21 +1,22 @@
 import System.Environment (getArgs)
 import System.IO (hSetBinaryMode, hSetBuffering, stdin, stdout, BufferMode (NoBuffering))
 
-data Expr = S | K | I | Iota | CInt Int | CSucc | CList [Expr] | A Expr Expr
+data Expr = S | K | I | Iota | N | P | CI Int | CS | A Expr Expr
 
-app :: Expr -> Expr -> Expr
-app (A (A S x) y) z = app (app x z) $ app y z
-app (A K x) _ = x
-app I x = x
-app Iota x = app (app x S) K
-app (A (CInt i) x) y = iterate (app x) y !! i
-app CSucc (CInt i) = CInt $ i + 1
-app (CList (x : t)) y = app (app y x) $ CList t
-app x y = A x y
+a :: Expr -> Expr -> Expr
+a (A (A S x) y) z = a (a x z) $ a y z
+a (A K x) _ = x
+a I x = x
+a Iota x = a (a x S) K
+a (A N _) x = x
+a (A (A P x) y) z = a (a z x) y
+a (A (CI i) x) y = iterate (a x) y !! i
+a CS (CI i) = CI $ i + 1
+a x y = A x y
 
 parse :: [Char] -> Expr
 parse [] = I
-parse x = foldl1 app $ fromIota <$> parse' (tail $ scanl f (' ', 0) $ filter (`elem` "()*01IKS`iks") $ concat $ takeWhile (/= '#') <$> lines x)
+parse x = foldl1 a $ fromIota <$> parse' (tail $ scanl f (' ', 0) $ filter (`elem` "()*01IKS`iks") $ concat $ takeWhile (/= '#') <$> lines x)
     where
         fromIota :: Expr -> Expr
         fromIota Iota = I
@@ -28,12 +29,12 @@ parse x = foldl1 app $ fromIota <$> parse' (tail $ scanl f (' ', 0) $ filter (`e
             | x `elem` "Kk" = K : parse' t
             | x `elem` "Ss" = S : parse' t
             | x `elem` "01" = (\ (x, y) -> foldl g I x : parse' y) $ span ((`elem` "01") . fst) $ (x, i) : t
-            | x == '`' = (\ (x : y : t) -> app (fromIota x) (fromIota y) : t) $ parse' t
-            | x == '*' = (\ (x : y : t) -> app x y : t) $ parse' t
-            | x == '(' = (\ (x, y) -> foldl1 app (fromIota <$> parse' x) : parse' (tail y)) $ span ((>= i) . snd) t
+            | x == '`' = (\ (x : y : t) -> a (fromIota x) (fromIota y) : t) $ parse' t
+            | x == '*' = (\ (x : y : t) -> a x y : t) $ parse' t
+            | x == '(' = (\ (x, y) -> foldl1 a (fromIota <$> parse' x) : parse' (tail y)) $ span ((>= i) . snd) t
             where
                 g :: Expr -> (Char, Int) -> Expr
-                g x ('0', _) = app (app x S) K
+                g x ('0', _) = a (a x S) K
                 g x _ = A S $ A K x
         parse' _ = []
 
@@ -41,18 +42,20 @@ parse x = foldl1 app $ fromIota <$> parse' (tail $ scanl f (' ', 0) $ filter (`e
         f (_, i) x = (x, i + fromEnum (x == '(') - fromEnum (x == ')'))
 
 church :: [Char] -> Expr
-church = CList . map CInt . (++ repeat 256) . map fromEnum
+church = cL . map CI . (++ repeat 256) . map fromEnum
+    where
+        cL :: [Expr] -> Expr
+        cL = foldr (A . A P) N
 
 unchurch :: Expr -> [Char]
-unchurch = map toEnum . takeWhile (< 256) . map uncInt . uncList
+unchurch = map toEnum . takeWhile (< 256) . map uncI . uncL
     where
-        uncInt :: Expr -> Int
-        uncInt (CInt i) = i
-        uncInt x = uncInt $ app (app x CSucc) $ CInt 0
+        uncI :: Expr -> Int
+        uncI (CI i) = i
+        uncI x = uncI $ a (a x CS) $ CI 0
 
-        uncList :: Expr -> [Expr]
-        uncList (CList l) = l
-        uncList x = app x K : uncList (app x $ A K I)
+        uncL :: Expr -> [Expr]
+        uncL x = a x K : uncL (a x N)
 
 main :: IO ()
 main = do
@@ -62,7 +65,7 @@ main = do
     hSetBinaryMode stdout b
     hSetBuffering stdout NoBuffering
     input <- getContents
-    putStr $ unchurch $ foldl1 (flip app) $ church input : map parse codes
+    putStr $ unchurch $ foldl1 (flip a) $ church input : map parse codes
     where
         f :: [[Char]] -> IO (Bool, [[Char]])
         f ("-b" : x) = sequence (True, sequence $ g x)
